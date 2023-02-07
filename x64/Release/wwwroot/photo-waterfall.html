@@ -43,56 +43,46 @@
         return width < itemWidth ? "max-width: 100%" : `width: ${itemWidth}px`;
     }
 
-    var imageCount = 0;
-    function AddImage(image) {
-        // 遍历所有的外层容器
-        const height = image.offsetHeight;
-        // 如果当前处在第一行
-        if (imageCount < column) {
-            // 直接设置元素距离上部的位置和距离左边的距离。
-            image.style.cssText = `top: ${gap}px; left: ${(itemWidth + gap) * imageCount + gap}px; ${GetMinWidth(image.width)}; height: auto`;
-            // 保存当前元素的高度。
-            heightArr.push(height);
-        } else {
-            // 不是第一行的话，就进行比对。
-            let minHeight = heightArr[0]; // 先保存第一项的高度
-            let minIndex = 0; // 保存第一项的索引值
-            for (let j = 0; j < heightArr.length; j++) {
-                // 通过循环遍历比对，拿到最小值和最小值的索引。
-                if (minHeight > heightArr[j]) {
-                    minHeight = heightArr[j];
-                    minIndex = j;
-                }
-            }
-            // 通过最小值为当前元素设置top值，通过索引为当前元素设置left值。
-            image.style.cssText = `top: ${minHeight + gap * 2}px; left: ${(itemWidth + gap) * minIndex + gap}px;  ${GetMinWidth(image.width)}; height: auto`;
-            // 并修改当前索引的高度为当前元素的高度
-            heightArr[minIndex] = minHeight + gap + height;
-        }
-        imageCount++;
-    }
-
     function rearrange() {
         window.init();
-        document.getElementById("contain").style.display = "none";
+        //document.getElementById("contain").style.display = "none";
         var images = document.querySelectorAll("img");
+        var columns = [];
         for (var i = 0; i < images.length; i++) {
             var image = images[i];
-            var height = image.offsetHeight;
-            if (imageCount < column) {
-                image.style.cssText = `top: ${gap}px; left: ${(itemWidth + gap) * imageCount + gap}px; ${GetMinWidth(image.width)}; height: auto`;
-                heightArr.push(height);
-            } else {
-                let minHeight = heightArr[0];
-                let minIndex = 0;
-                for (let j = 0; j < heightArr.length; j++) {
-                    if (minHeight > heightArr[j]) {
-                        minHeight = heightArr[j];
-                        minIndex = j;
+            if (image.src !== "" && image.width > 0 && image.height > 0) {
+                image.style.opacity = "1.0";
+                if (i < column) {
+                    image.style.position = "absolute";
+                    image.style.top = `${gap}px`;
+                    image.style.left = `${gap + (itemWidth + gap) * i}px`;
+                    image.style.height = "auto";
+                    if (image.width < itemWidth) {
+                        image.style.maxWidth = "100%";
+                    } else {
+                        image.style.width = `${itemWidth}px`;
                     }
+                    columns.push(image.offsetTop + image.height);
+                } else {
+                    var index = 0;
+                    var minTop = columns[index];
+                    for (let j = 0; j < columns.length; j++) {
+                        if (minTop > columns[j]) {
+                            minTop = columns[j];
+                            index = j;
+                        }
+                    }
+                    image.style.position = "absolute";
+                    image.style.top = `${minTop + gap}px`;
+                    image.style.left = `${gap + (itemWidth + gap) * index}px`;
+                    image.style.height = "auto";
+                    if (image.width < itemWidth) {
+                        image.style.maxWidth = "100%";
+                    } else {
+                        image.style.width = `${itemWidth}px`;
+                    }
+                    columns[index] += image.height + gap;
                 }
-                image.style.cssText = `top: ${minHeight + gap * 2}px; left: ${(itemWidth + gap) * minIndex + gap}px;  ${GetMinWidth(image.width)}; height: auto`;
-                heightArr[minIndex] = minHeight + gap + height;
             }
         }
         document.getElementById("contain").style.display = "block";
@@ -105,17 +95,17 @@
                 let img = i.target;
                 let trueSrc = img.getAttribute("data-src");
                 img.addEventListener('load', () => {
-                    window.AddImage(img);
+                    window.rearrange();
                 });
                 img.addEventListener("click", (e) => {
                     layer.open({
                         type: 2,
-                        skin: 'layui-layer-lan',
-                        area: ['80%', '80%'],
+                        area: ['95%', '95%'],
                         title: window.encodeURI(img.dataset.title),
+                        skin: 'layui-layer-lan',
                         shadeClose: true,
                         shade: 0.8,
-                        content: [`preview.html?src=${window.encodeURI(img.src)}`, "no"],
+                        content: [`preview.html?src=${window.encodeURI(img.src)}`, "yes"],
                         success: (layero, index) => {
                         },
                     });

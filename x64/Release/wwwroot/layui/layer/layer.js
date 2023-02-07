@@ -452,7 +452,7 @@ Class.pt.offset = function(){
   var that = this, config = that.config, layero = that.layero;
   var area = [layero.outerWidth(), layero.outerHeight()];
   var type = typeof config.offset === 'object';
-  that.offsetTop = (win.height() - area[1])/2;
+  that.offsetTop = (document.body.clientHeight - area[1])/2;
   that.offsetLeft = (win.width() - area[0])/2;
   
   if(type){
@@ -465,20 +465,20 @@ Class.pt.offset = function(){
     } else if(config.offset === 'r'){ //右
       that.offsetLeft = win.width() - area[0];
     } else if(config.offset === 'b'){ //下
-      that.offsetTop = win.height() - area[1];
+      that.offsetTop = document.body.clientHeight - area[1];
     } else if(config.offset === 'l'){ //左
       that.offsetLeft = 0;
     } else if(config.offset === 'lt'){ //左上角
       that.offsetTop = 0;
       that.offsetLeft = 0;
     } else if(config.offset === 'lb'){ //左下角
-      that.offsetTop = win.height() - area[1];
+      that.offsetTop = document.body.clientHeight - area[1];
       that.offsetLeft = 0;
     } else if(config.offset === 'rt'){ //右上角
       that.offsetTop = 0;
       that.offsetLeft = win.width() - area[0];
     } else if(config.offset === 'rb'){ //右下角
-      that.offsetTop = win.height() - area[1];
+      that.offsetTop = document.body.clientHeight - area[1];
       that.offsetLeft = win.width() - area[0];
     } else {
       that.offsetTop = config.offset;
@@ -488,7 +488,7 @@ Class.pt.offset = function(){
  
   if(!config.fixed){
     that.offsetTop = /%$/.test(that.offsetTop) ? 
-      win.height()*parseFloat(that.offsetTop)/100
+      document.body.clientHeight*parseFloat(that.offsetTop)/100
     : parseFloat(that.offsetTop);
     that.offsetLeft = /%$/.test(that.offsetLeft) ? 
       win.width()*parseFloat(that.offsetLeft)/100
@@ -498,7 +498,7 @@ Class.pt.offset = function(){
   }
   
   if(layero.attr('minLeft')){
-    that.offsetTop = win.height() - (layero.find(doms[1]).outerHeight() || 0);
+    that.offsetTop = document.body.clientHeight - (layero.find(doms[1]).outerHeight() || 0);
     that.offsetLeft = layero.css('left');
   }
 

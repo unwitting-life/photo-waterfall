@@ -1,9 +1,31 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        div {
+            width: 500px;
+            height: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        div img {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        div span {
+            display: inline-block;
+            width: 0;
+            height: 100%;
+            vertical-align: middle;
+        }
+    </style>
 </head>
-<body>
-    <img id="preview" style="width: 100%; height: auto"/>
+<body style="background: #808080">
+    <div style="margin-top: -8px">
+        <img id="preview" style="max-width: 100%; height: auto" /><span></span>
+    </div>
     <script>
         var params = new URLSearchParams(window.location.search);
         document.getElementById("preview").src = params.get("src");

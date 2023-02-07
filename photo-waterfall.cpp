@@ -42,7 +42,7 @@ void Get(const ::httplib::Request& req, ::httplib::Response& res) {
             if (!images.empty()) {
                 images += "\n";
             }
-            images += utils::strings::formatA("    <img data-src=\"%s\" data-title=\"%s\" />",
+            images += utils::strings::formatA("    <img data-src=\"%s\" data-title=\"%s\" style=\"opacity: 0\"/>",
                                               utils::strings::replaceA(e.substr(_tcslen(WWWROOT)), PATH_SEPARATOR_A, "/").c_str(),
                                               utils::io::path::GetFileNameA(e).c_str());
         }
