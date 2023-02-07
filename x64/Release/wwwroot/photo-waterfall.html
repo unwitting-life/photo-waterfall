@@ -1,0 +1,135 @@
+<!-- https://blog.csdn.net/snsHL9db69ccu1aIKl9r/article/details/123343027 -->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script src="https://libs.baidu.com/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/layui/layer/layer.js"></script>
+</head>
+<body style="background: black">
+    <div id="contain">
+    %1
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+
+    function init() {
+        // 定义瀑布流算法函数
+        window.expectColumn = 5;
+        window.scrollBarWidth = getScrollbarWidth();    // 获取滚动条的宽度
+        window.pageWidth = window.innerWidth - scrollBarWidth; // 获取当前页面的宽度 = window.innerWidth - 滚动条的宽度
+        window.minGap = 20; // 最小间距，让每一列的最小空隙可以自定义，避免太过拥挤的情况发生。但是，会通过计算得到真实的间距。
+        window.itemWidth = pageWidth / expectColumn; // 每一项的宽度，即当前每一个图片容器的宽度。保证每一列都是等宽不等高的。
+        window.column = Math.floor(pageWidth / (itemWidth + minGap)); // 实际列数=页面宽度/(图片宽度+最小间距)
+        window.gap = (pageWidth - itemWidth * column) / column / 2; // 计算真实间距 = (页面宽度- 图片宽度*实际列数)/实际列数/2
+        window.items = document.querySelectorAll('img'); // 获取所有的外层元素
+        window.heightArr = []; // 定义一个空数组，保存最低高度。
+    }
+    window.init();
+
+    // 获取滚动条的宽度
+    function getScrollbarWidth() {
+        const oDiv = document.createElement('div');//创建一个div
+        // 给div设置样式。随便定义宽高，只要能获取到滚动条就可以
+        oDiv.style.cssText = `width: 50px;height: 50px;overflow: scroll;`
+        document.body.appendChild(oDiv);//把div添加到body中
+        const scrollbarWidth = oDiv.offsetWidth - oDiv.clientWidth;// 使最大宽度和可视宽度相减，获得到滚动条宽度。
+        oDiv.remove();//移除创建的div
+        return scrollbarWidth;//返回滚动条宽度
+    }
+
+
+    function GetMinWidth(width) {
+        return width < itemWidth ? "max-width: 100%" : `width: ${itemWidth}px`;
+    }
+
+    var imageCount = 0;
+    function AddImage(image) {
+        // 遍历所有的外层容器
+        const height = image.offsetHeight;
+        // 如果当前处在第一行
+        if (imageCount < column) {
+            // 直接设置元素距离上部的位置和距离左边的距离。
+            image.style.cssText = `top: ${gap}px; left: ${(itemWidth + gap) * imageCount + gap}px; ${GetMinWidth(image.width)}; height: auto`;
+            // 保存当前元素的高度。
+            heightArr.push(height);
+        } else {
+            // 不是第一行的话，就进行比对。
+            let minHeight = heightArr[0]; // 先保存第一项的高度
+            let minIndex = 0; // 保存第一项的索引值
+            for (let j = 0; j < heightArr.length; j++) {
+                // 通过循环遍历比对，拿到最小值和最小值的索引。
+                if (minHeight > heightArr[j]) {
+                    minHeight = heightArr[j];
+                    minIndex = j;
+                }
+            }
+            // 通过最小值为当前元素设置top值，通过索引为当前元素设置left值。
+            image.style.cssText = `top: ${minHeight + gap * 2}px; left: ${(itemWidth + gap) * minIndex + gap}px;  ${GetMinWidth(image.width)}; height: auto`;
+            // 并修改当前索引的高度为当前元素的高度
+            heightArr[minIndex] = minHeight + gap + height;
+        }
+        imageCount++;
+    }
+
+    function rearrange() {
+        window.init();
+        document.getElementById("contain").style.display = "none";
+        var images = document.querySelectorAll("img");
+        for (var i = 0; i < images.length; i++) {
+            var image = images[i];
+            var height = image.offsetHeight;
+            if (imageCount < column) {
+                image.style.cssText = `top: ${gap}px; left: ${(itemWidth + gap) * imageCount + gap}px; ${GetMinWidth(image.width)}; height: auto`;
+                heightArr.push(height);
+            } else {
+                let minHeight = heightArr[0];
+                let minIndex = 0;
+                for (let j = 0; j < heightArr.length; j++) {
+                    if (minHeight > heightArr[j]) {
+                        minHeight = heightArr[j];
+                        minIndex = j;
+                    }
+                }
+                image.style.cssText = `top: ${minHeight + gap * 2}px; left: ${(itemWidth + gap) * minIndex + gap}px;  ${GetMinWidth(image.width)}; height: auto`;
+                heightArr[minIndex] = minHeight + gap + height;
+            }
+        }
+        document.getElementById("contain").style.display = "block";
+    }
+
+    var images = document.getElementsByTagName("img");
+    function callback(entries) {
+        for (let i of entries) {
+            if (i.isIntersecting) {
+                let img = i.target;
+                let trueSrc = img.getAttribute("data-src");
+                img.addEventListener('load', () => {
+                    window.AddImage(img);
+                });
+                img.addEventListener("click", (e) => {
+                    layer.open({
+                        type: 2,
+                        skin: 'layui-layer-lan',
+                        area: ['80%', '80%'],
+                        title: window.encodeURI(img.dataset.title),
+                        shadeClose: true,
+                        shade: 0.8,
+                        content: [`preview.html?src=${window.encodeURI(img.src)}`, "no"],
+                        success: (layero, index) => {
+                        },
+                    });
+                });
+                img.setAttribute("src", trueSrc);
+                observer.unobserve(img);
+            }
+        }
+    }
+
+    const observer = new IntersectionObserver(callback);
+    for (let i of images) {
+        observer.observe(i);
+    }
+
+    window.onresize = window.rearrange;
+</script>
